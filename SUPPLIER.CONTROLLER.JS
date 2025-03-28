@@ -18,14 +18,12 @@ sap.ui.define([
                     { supplierRequestId: "R18", supplierName: "XYZ Pvt Ltd", type: "Indirect", requestCreationDate: "12-02-2024", requestAging: "20 Days", lastActionDate: "12-10-2024", lastActionAging: "20 Days", stage: "SUPPLIER", status: "PENDING" },
                     { supplierRequestId: "R17", supplierName: "ABC Pvt Ltd", type: "Direct", requestCreationDate: "12-03-2024", requestAging: "30 Days", lastActionDate: "13-10-2024", lastActionAging: "30 Days", stage: "BUYER", status: "DRAFT" },
                     { supplierRequestId: "R16", supplierName: "XYZ Pvt Ltd", type: "Indirect", requestCreationDate: "12-04-2024", requestAging: "40 Days", lastActionDate: "14-10-2024", lastActionAging: "40 Days", stage: "BUYER", status: "CANCELLED" },
-                    { supplierRequestId: "R16", supplierName: "XYZ Pvt Ltd", type: "Indirect", requestCreationDate: "12-04-2024", requestAging: "40 Days", lastActionDate: "14-10-2024", lastActionAging: "40 Days", stage: "BUYER", status: "CANCELLED" },
                     { supplierRequestId: "R15", supplierName: "ABC Pvt Ltd", type: "Direct", requestCreationDate: "12-05-2024", requestAging: "50 Days", lastActionDate: "15-10-2024", lastActionAging: "50 Days", stage: "ON BOARDING", status: "VENDOR CREATED" },
                     { supplierRequestId: "R14", supplierName: "ABC Pvt Ltd", type: "Direct", requestCreationDate: "12-06-2024", requestAging: "60 Days", lastActionDate: "16-10-2024", lastActionAging: "25 Days", stage: "ON BOARDING", status: "CMDM UPDATE PENDING" },
                     { supplierRequestId: "R13", supplierName: "ABC Pvt Ltd", type: "Indirect", requestCreationDate: "12-07-2024", requestAging: "70 Days", lastActionDate: "17-10-2024", lastActionAging: "35 Days", stage: "ON BOARDING", status: "FINANCE UPDATE PENDING" },
                     { supplierRequestId: "R12", supplierName: "XYZ Pvt Ltd", type: "Indirect", requestCreationDate: "12-08-2024", requestAging: "80 Days", lastActionDate: "18-10-2024", lastActionAging: "55 Days", stage: "ON BOARDING", status: "PURCHASE APPROVAL PENDING" },
-                    { supplierRequestId: "R11", supplierName: "XYZ Pvt Ltd", type: "Indirect", requestCreationDate: "12-109-2024", requestAging: "90 Days", lastActionDate: "19-10-2024", lastActionAging: "45 Days", stage: "BUYER", status: "DRAFT" },
-                    { supplierRequestId: "R13", supplierName: "XYZPvt Ltd", type: "Direct", requestCreationDate: "12-10-2024", requestAging: "100 Days", lastActionDate: "20-10-2024", lastActionAging: "75 Days", stage: "BUYER", status: "APPROVED" },
-                    { supplierRequestId: "R10", supplierName: "XYZPvt Ltd", type: "Direct", requestCreationDate: "12-10-2024", requestAging: "100 Days", lastActionDate: "20-10-2024", lastActionAging: "75 Days", stage: "BUYER", status: "APPROVED" },
+                    { supplierRequestId: "R11", supplierName: "XYZ Pvt Ltd", type: "Indirect", requestCreationDate: "12-09-2024", requestAging: "90 Days", lastActionDate: "19-10-2024", lastActionAging: "45 Days", stage: "BUYER", status: "DRAFT" },
+                    { supplierRequestId: "R10", supplierName: "XYZ Pvt Ltd", type: "Direct", requestCreationDate: "12-10-2024", requestAging: "100 Days", lastActionDate: "20-10-2024", lastActionAging: "75 Days", stage: "BUYER", status: "APPROVED" },
                     { supplierRequestId: "R9", supplierName: "XYZ Pvt Ltd", type: "Direct", requestCreationDate: "12-11-2024", requestAging: "110 Days", lastActionDate: "21-10-2024", lastActionAging: "65 Days", stage: "BUYER", status: "DRAFT" }
                 ],
                 draftCount: 0,
@@ -74,7 +72,13 @@ sap.ui.define([
                 isDifferentAddress: false,
                 differentAddress: "",
                 purchasingOrg: "",
-                paymentTerms: ""
+                paymentTerms: "",
+                vendorCodeCreationType: "",
+                buyerRequesting: "",
+                isRelatedParty: false,
+                businessJustification: "",
+                additionalComments: "",
+                attachments: []
             };
             var oNewSupplierModel = new JSONModel(oNewSupplierData);
             this.getView().setModel(oNewSupplierModel, "newSupplier");
@@ -363,6 +367,12 @@ sap.ui.define([
             var sExistingSupplierCode = formData.existingSupplierCode || "";
             var bIsDifferentAddress = formData.isDifferentAddress || false;
             var sDifferentAddress = formData.differentAddress || "";
+            var sVendorCodeCreationType = formData.vendorCodeCreationType || "";
+            var sBuyerRequesting = formData.buyerRequesting || "";
+            var bIsRelatedParty = formData.isRelatedParty || false;
+            var sBusinessJustification = formData.businessJustification || "";
+            var sAdditionalComments = formData.additionalComments || "";
+            var aAttachments = formData.attachments || [];
 
             var sHtmlContent = `
 <!DOCTYPE html>
@@ -388,6 +398,66 @@ sap.ui.define([
             text-align: center !important;
             font-size: 18px !important;
             font-weight: bold !important;
+            padding: 10px !important;
+        }
+        .sapUxAPObjectPageSection {
+            margin-bottom: 20px;
+            border: 1px solid #d9d9d9;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 15px;
+        }
+        .sapUxAPObjectPageSection:not(:first-child) {
+            border-top: 1px solid #d9d9d9; /* HR-like divider between sections */
+            margin-top: 20px;
+        }
+        .sapUxAPObjectPageSectionHeader {
+            background-color: #f0f0f0;
+            padding: 10px 15px;
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+            border-bottom: 1px solid #d9d9d9;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        .sapUxAPObjectPageSubSection {
+            padding: 10px 15px;
+        }
+        .sapMText, .sapMLabel {
+            color: #333 !important;
+        }
+        .sapMLabelRequired::after {
+            content: "*";
+            color: #ff0000;
+            margin-left: 4px;
+        }
+        .sapMInputBaseInner, .sapMSelect, .sapMTextAreaInner {
+            border: 1px solid #d9d9d9 !important;
+            border-radius: 4px !important;
+            padding: 8px !important;
+        }
+        .sapMInputBaseDisabled .sapMInputBaseInner {
+            background-color: #f0f0f0 !important;
+        }
+        .sapMRbG {
+            display: flex;
+            gap: 20px;
+        }
+        .sapMTB {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-top: 1px solid #d9d9d9;
+        }
+        .sapMBtnInner {
+            border-radius: 4px !important;
+        }
+        .attachment-section {
+            margin-top: 10px;
+        }
+        .attachment-section .sapMUploadCollection {
+            border: none !important;
         }
     </style>
 </head>
@@ -406,34 +476,32 @@ sap.ui.define([
                         }).addStyleClass("customHeader"),
                         sections: [
                             new sap.uxap.ObjectPageSection({
-                                title: "SUPPLIER IDENTIFICATION",
+                                title: "Supplier Identification",
                                 titleUppercase: false,
                                 subSections: [
                                     new sap.uxap.ObjectPageSubSection({
-                                        title: "Supplier Details",
-                                        titleUppercase: false,
                                         blocks: [
                                             new sap.ui.layout.form.SimpleForm({
                                                 editable: true,
                                                 layout: "ResponsiveGridLayout",
+                                                labelSpanL: 4,
+                                                labelSpanM: 4,
+                                                labelSpanS: 12,
                                                 content: [
-                                                    new sap.m.Label({ text: "SUPPLIER SPEND TYPE:", design: "Bold" }),
+                                                    new sap.m.Label({ text: "Supplier Spend Type:", design: "Bold", required: true }),
                                                     new sap.m.Select({
-                                                        width: "50%",
+                                                        width: "100%",
                                                         items: [
                                                             new sap.ui.core.Item({ key: "", text: "Select" }),
                                                             new sap.ui.core.Item({ key: "Direct", text: "Direct" }),
                                                             new sap.ui.core.Item({ key: "Indirect", text: "Indirect" }),
-                                                            new sap.ui.core.Item({ key: "Capital", text: "Capital" }),
-                                                            new sap.ui.core.Item({ key: "Value Fit", text: "Value Fit" }),
-                                                            new sap.ui.core.Item({ key: "Proto", text: "Proto" }),
-                                                            new sap.ui.core.Item({ key: "Accessories", text: "Accessories" })
+                                                            new sap.ui.core.Item({ key: "Capital", text: "Capital" })
                                                         ],
                                                         selectedKey: "${sSpendType}"
                                                     }),
-                                                    new sap.m.Label({ text: "SUPPLIER TYPE:", design: "Bold" }),
+                                                    new sap.m.Label({ text: "Supplier Type:", design: "Bold", required: true }),
                                                     new sap.m.Select({
-                                                        width: "50%",
+                                                        width: "100%",
                                                         items: [
                                                             new sap.ui.core.Item({ key: "", text: "Select" }),
                                                             new sap.ui.core.Item({ key: "LOCAL GST", text: "LOCAL GST" }),
@@ -442,162 +510,42 @@ sap.ui.define([
                                                         ],
                                                         selectedKey: "${sSupplierType}"
                                                     }),
-                                                    new sap.m.Label({ text: "GSTIN No.:", design: "Bold" }),
-                                                    new sap.m.Input({ value: "${sGstin}", placeholder: "Enter GSTIN", width: "50%", enabled: false }),
-                                                    new sap.m.Label({ text: "PAN Card No.:", design: "Bold" }),
-                                                    new sap.m.Input({ value: "${sPan}", placeholder: "Enter PAN", width: "50%", enabled: false }),
-                                                    new sap.m.Label({ text: "Address:", design: "Bold" }),
-                                                    new sap.m.TextArea({ value: "${sAddress}", placeholder: "Enter Address", rows: 3 }),
-                                                    new sap.m.Label({ text: "JUSTIFICATION FOR NEW SUPPLIER:", design: "Bold" }),
-                                                    new sap.m.TextArea({ value: "${sJustification}", placeholder: "Enter Justification", rows: 3 })
-                                                ]
-                                            })
-                                        ]
-                                    })
-                                ]
-                            }),
-                            new sap.uxap.ObjectPageSection({
-                                title: "GENERAL SUPPLIER INFORMATION",
-                                titleUppercase: false,
-                                subSections: [
-                                    new sap.uxap.ObjectPageSubSection({
-                                        title: "Supplier Information",
-                                        titleUppercase: false,
-                                        blocks: [
-                                            new sap.ui.layout.form.SimpleForm({
-                                                editable: true,
-                                                layout: "ResponsiveGridLayout",
-                                                content: [
-                                                    new sap.m.Label({ text: "ABC INDUSTRIES PVT LTD, 1234, GURUGRAM, HARYANA, INDIA", design: "Bold" }),
-                                                    new sap.m.Label({ text: "IS THIS A NEW OR EXISTING SUPPLIER?" }),
-                                                    new sap.m.RadioButtonGroup({
-                                                        columns: 2,
-                                                        selectedIndex: ${bIsExistingSupplier ? 1 : 0},
-                                                        buttons: [
-                                                            new sap.m.RadioButton({ text: "New" }),
-                                                            new sap.m.RadioButton({ text: "Existing" })
+                                                    new sap.m.Label({ text: "Nature of Activity:", design: "Bold", required: true }),
+                                                    new sap.m.Select({
+                                                        width: "100%",
+                                                        items: [
+                                                            new sap.ui.core.Item({ key: "", text: "Select" }),
+                                                            new sap.ui.core.Item({ key: "Manufacturing", text: "Manufacturing" }),
+                                                            new sap.ui.core.Item({ key: "Service", text: "Service" }),
+                                                            new sap.ui.core.Item({ key: "Trading", text: "Trading" })
                                                         ]
                                                     }),
-                                                    new sap.m.Label({ text: "EXISTING SUPPLIER CODE:" }),
-                                                    new sap.m.Input({ value: "${sExistingSupplierCode}", placeholder: "Enter Existing Supplier Code" })
-                                                ]
-                                            })
-                                        ]
-                                    })
-                                ]
-                            }),
-                            new sap.uxap.ObjectPageSection({
-                                title: "PRIMARY CONTACT",
-                                titleUppercase: false,
-                                subSections: [
-                                    new sap.uxap.ObjectPageSubSection({
-                                        title: "Contact Details",
-                                        titleUppercase: false,
-                                        blocks: [
-                                            new sap.ui.layout.form.SimpleForm({
-                                                editable: true,
-                                                layout: "ResponsiveGridLayout",
-                                                content: [
-                                                    new sap.m.Label({ text: "PRIMARY CONTACT NAME:" }),
-                                                    new sap.m.Input({ value: "${sPrimaryContactName}", placeholder: "Enter Contact Name" }),
-                                                    new sap.m.Label({ text: "PRIMARY CONTACT NUMBER:" }),
-                                                    new sap.m.Input({ value: "${sPrimaryContactNumber}", placeholder: "Enter Contact Number" }),
-                                                    new sap.m.Label({ text: "PRIMARY CONTACT EMAIL:" }),
-                                                    new sap.m.Input({ value: "${sPrimaryContactEmail}", placeholder: "Enter Contact Email" })
-                                                ]
-                                            })
-                                        ]
-                                    })
-                                ]
-                            }),
-                            new sap.uxap.ObjectPageSection({
-                                title: "PURCHASING DATA",
-                                titleUppercase: false,
-                                subSections: [
-                                    new sap.uxap.ObjectPageSubSection({
-                                        title: "Purchasing Information",
-                                        titleUppercase: false,
-                                        blocks: [
-                                            new sap.ui.layout.form.SimpleForm({
-                                                editable: true,
-                                                layout: "ResponsiveGridLayout",
-                                                content: [
-                                                    new sap.m.Label({ text: "IS THIS AN EXISTING SUPPLIER?" }),
-                                                    new sap.m.RadioButtonGroup({
-                                                        columns: 2,
-                                                        selectedIndex: ${bIsExistingSupplier ? 1 : 0},
-                                                        buttons: [
-                                                            new sap.m.RadioButton({ text: "Yes" }),
-                                                            new sap.m.RadioButton({ text: "No" })
+                                                    new sap.m.Label({ text: "Sector:", design: "Bold", required: true }),
+                                                    new sap.m.Select({
+                                                        width: "100%",
+                                                        items: [
+                                                            new sap.ui.core.Item({ key: "", text: "Select" }),
+                                                            new sap.ui.core.Item({ key: "Public", text: "Public" }),
+                                                            new sap.ui.core.Item({ key: "Private", text: "Private" })
                                                         ]
                                                     }),
-                                                    new sap.m.Label({ text: "EXISTING SUPPLIER CODE:" }),
-                                                    new sap.m.Input({ value: "${sExistingSupplierCode}", placeholder: "Enter Existing Supplier Code" }),
-                                                    new sap.m.Label({ text: "DIFFERENT ADDRESS?" }),
-                                                    new sap.m.RadioButtonGroup({
-                                                        columns: 2,
-                                                        selectedIndex: ${bIsDifferentAddress ? 1 : 0},
-                                                        buttons: [
-                                                            new sap.m.RadioButton({ text: "Yes" }),
-                                                            new sap.m.RadioButton({ text: "No" })
+                                                    new sap.m.Label({ text: "Department:", design: "Bold", required: true }),
+                                                    new sap.m.Select({
+                                                        width: "100%",
+                                                        items: [
+                                                            new sap.ui.core.Item({ key: "", text: "Select" }),
+                                                            new sap.ui.core.Item({ key: "Finance", text: "Finance" }),
+                                                            new sap.ui.core.Item({ key: "HR", text: "HR" }),
+                                                            new sap.ui.core.Item({ key: "IT", text: "IT" })
                                                         ]
                                                     }),
-                                                    new sap.m.Label({ text: "ADDRESS:" }),
-                                                    new sap.m.TextArea({ value: "${sDifferentAddress}", placeholder: "Enter Different Address", rows: 3 })
-                                                ]
-                                            })
-                                        ]
-                                    })
-                                ]
-                            }),
-                            new sap.uxap.ObjectPageSection({
-                                title: "PURCHASING ORGANIZATION",
-                                titleUppercase: false,
-                                subSections: [
-                                    new sap.uxap.ObjectPageSubSection({
-                                        title: "Organization Details",
-                                        titleUppercase: false,
-                                        blocks: [
-                                            new sap.ui.layout.form.SimpleForm({
-                                                editable: true,
-                                                layout: "ResponsiveGridLayout",
-                                                content: [
-                                                    new sap.m.Label({ text: "PURCHASING ORGANIZATION:" }),
-                                                    new sap.m.Input({ value: "${sPurchasingOrg}", placeholder: "Enter Purchasing Organization" })
-                                                ]
-                                            })
-                                        ]
-                                    })
-                                ]
-                            }),
-                            new sap.uxap.ObjectPageSection({
-                                title: "ADDITIONAL INFORMATION",
-                                titleUppercase: false,
-                                subSections: [
-                                    new sap.uxap.ObjectPageSubSection({
-                                        title: "Additional Details",
-                                        titleUppercase: false,
-                                        blocks: [
-                                            new sap.ui.layout.form.SimpleForm({
-                                                editable: true,
-                                                layout: "ResponsiveGridLayout",
-                                                content: [
-                                                    new sap.m.Label({ text: "IS THIS AN EXISTING SUPPLIER?" }),
-                                                    new sap.m.RadioButtonGroup({
-                                                        columns: 2,
-                                                        selectedIndex: ${bIsExistingSupplier ? 1 : 0},
-                                                        buttons: [
-                                                            new sap.m.RadioButton({ text: "Yes" }),
-                                                            new sap.m.RadioButton({ text: "No" })
-                                                        ]
-                                                    }),
-                                                    new sap.m.Label({ text: "DIFFERENT ADDRESS?" }),
-                                                    new sap.m.RadioButtonGroup({
-                                                        columns: 2,
-                                                        selectedIndex: ${bIsDifferentAddress ? 1 : 0},
-                                                        buttons: [
-                                                            new sap.m.RadioButton({ text: "Yes" }),
-                                                            new sap.m.RadioButton({ text: "No" })
+                                                    new sap.m.Label({ text: "Function & Subfunction:", design: "Bold", required: true }),
+                                                    new sap.m.Select({
+                                                        width: "100%",
+                                                        items: [
+                                                            new sap.ui.core.Item({ key: "", text: "Select" }),
+                                                            new sap.ui.core.Item({ key: "Procurement", text: "Procurement" }),
+                                                            new sap.ui.core.Item({ key: "Logistics", text: "Logistics" })
                                                         ]
                                                     })
                                                 ]
@@ -607,19 +555,166 @@ sap.ui.define([
                                 ]
                             }),
                             new sap.uxap.ObjectPageSection({
-                                title: "PAYMENT TERMS",
+                                title: "Requirements",
                                 titleUppercase: false,
                                 subSections: [
                                     new sap.uxap.ObjectPageSubSection({
-                                        title: "Payment Details",
-                                        titleUppercase: false,
                                         blocks: [
                                             new sap.ui.layout.form.SimpleForm({
                                                 editable: true,
                                                 layout: "ResponsiveGridLayout",
+                                                labelSpanL: 4,
+                                                labelSpanM: 4,
+                                                labelSpanS: 12,
                                                 content: [
-                                                    new sap.m.Label({ text: "PAYMENT TERMS:" }),
-                                                    new sap.m.Input({ value: "${sPaymentTerms}", placeholder: "Enter Payment Terms" })
+                                                    new sap.m.Label({ text: "Type of Vendor Code Creation Request:", design: "Bold", required: true }),
+                                                    new sap.m.Select({
+                                                        width: "100%",
+                                                        items: [
+                                                            new sap.ui.core.Item({ key: "", text: "Select" }),
+                                                            new sap.ui.core.Item({ key: "New", text: "New" }),
+                                                            new sap.ui.core.Item({ key: "Update", text: "Update" })
+                                                        ],
+                                                        selectedKey: "${sVendorCodeCreationType}"
+                                                    }),
+                                                    new sap.m.Label({ text: "Buyer Requesting Vendor Code Creation:", design: "Bold", required: true }),
+                                                    new sap.m.Input({ value: "${sBuyerRequesting}" }),
+                                                    new sap.m.Label({ text: "Is it a M&M Related Party Vendor Code?", design: "Bold", required: true }),
+                                                    new sap.m.RadioButtonGroup({
+                                                        columns: 2,
+                                                        selectedIndex: ${bIsRelatedParty ? 1 : 0},
+                                                        buttons: [
+                                                            new sap.m.RadioButton({ text: "Yes" }),
+                                                            new sap.m.RadioButton({ text: "No" })
+                                                        ]
+                                                    }),
+                                                    new sap.m.Label({ text: "Business Justification for New Supplier:", design: "Bold", required: true }),
+                                                    new sap.m.TextArea({ value: "${sBusinessJustification}", rows: 3 }),
+                                                    new sap.m.Label({ text: "GSTIN No.:", design: "Bold", required: true }),
+                                                    new sap.m.Input({ value: "${sGstin}", enabled: false }),
+                                                    new sap.m.Label({ text: "PAN Card No.:", design: "Bold", required: true }),
+                                                    new sap.m.Input({ value: "${sPan}", enabled: false }),
+                                                    new sap.m.Label({ text: "Please attach if any other document:", design: "Bold" }),
+                                                    new sap.m.UploadCollection({
+                                                        multiple: true,
+                                                        uploadEnabled: true,
+                                                        items: {
+                                                            path: "/attachments",
+                                                            template: new sap.m.UploadCollectionItem({
+                                                                fileName: "{fileName}"
+                                                            })
+                                                        }
+                                                    }).addStyleClass("attachment-section"),
+                                                    new sap.m.Label({ text: "Additional Comments:", design: "Bold" }),
+                                                    new sap.m.TextArea({ value: "${sAdditionalComments}", rows: 3 })
+                                                ]
+                                            })
+                                        ]
+                                    })
+                                ]
+                            }),
+                            new sap.uxap.ObjectPageSection({
+                                title: "General Supplier Information",
+                                titleUppercase: false,
+                                subSections: [
+                                    new sap.uxap.ObjectPageSubSection({
+                                        blocks: [
+                                            new sap.ui.layout.form.SimpleForm({
+                                                editable: true,
+                                                layout: "ResponsiveGridLayout",
+                                                labelSpanL: 4,
+                                                labelSpanM: 4,
+                                                labelSpanS: 12,
+                                                content: [
+                                                    new sap.m.Label({ text: "Is this a New or Existing Supplier?", design: "Bold" }),
+                                                    new sap.m.RadioButtonGroup({
+                                                        columns: 2,
+                                                        selectedIndex: ${bIsExistingSupplier ? 1 : 0},
+                                                        buttons: [
+                                                            new sap.m.RadioButton({ text: "New" }),
+                                                            new sap.m.RadioButton({ text: "Existing" })
+                                                        ]
+                                                    }),
+                                                    new sap.m.Label({ text: "Existing Supplier Code:", design: "Bold" }),
+                                                    new sap.m.Input({ value: "${sExistingSupplierCode}" })
+                                                ]
+                                            })
+                                        ]
+                                    })
+                                ]
+                            }),
+                            new sap.uxap.ObjectPageSection({
+                                title: "Primary Contact",
+                                titleUppercase: false,
+                                subSections: [
+                                    new sap.uxap.ObjectPageSubSection({
+                                        blocks: [
+                                            new sap.ui.layout.form.SimpleForm({
+                                                editable: true,
+                                                layout: "ResponsiveGridLayout",
+                                                labelSpanL: 4,
+                                                labelSpanM: 4,
+                                                labelSpanS: 12,
+                                                content: [
+                                                    new sap.m.Label({ text: "Primary Contact Name:", design: "Bold" }),
+                                                    new sap.m.Input({ value: "${sPrimaryContactName}" }),
+                                                    new sap.m.Label({ text: "Primary Contact Number:", design: "Bold" }),
+                                                    new sap.m.Input({ value: "${sPrimaryContactNumber}" }),
+                                                    new sap.m.Label({ text: "Primary Contact Email:", design: "Bold" }),
+                                                    new sap.m.Input({ value: "${sPrimaryContactEmail}" })
+                                                ]
+                                            })
+                                        ]
+                                    })
+                                ]
+                            }),
+                            new sap.uxap.ObjectPageSection({
+                                title: "Purchasing Data",
+                                titleUppercase: false,
+                                subSections: [
+                                    new sap.uxap.ObjectPageSubSection({
+                                        blocks: [
+                                            new sap.ui.layout.form.SimpleForm({
+                                                editable: true,
+                                                layout: "ResponsiveGridLayout",
+                                                labelSpanL: 4,
+                                                labelSpanM: 4,
+                                                labelSpanS: 12,
+                                                content: [
+                                                    new sap.m.Label({ text: "Purchasing Organization:", design: "Bold" }),
+                                                    new sap.m.Input({ value: "${sPurchasingOrg}" }),
+                                                    new sap.m.Label({ text: "Different Address?", design: "Bold" }),
+                                                    new sap.m.RadioButtonGroup({
+                                                        columns: 2,
+                                                        selectedIndex: ${bIsDifferentAddress ? 1 : 0},
+                                                        buttons: [
+                                                            new sap.m.RadioButton({ text: "Yes" }),
+                                                            new sap.m.RadioButton({ text: "No" })
+                                                        ]
+                                                    }),
+                                                    new sap.m.Label({ text: "Different Address:", design: "Bold" }),
+                                                    new sap.m.TextArea({ value: "${sDifferentAddress}", rows: 3 })
+                                                ]
+                                            })
+                                        ]
+                                    })
+                                ]
+                            }),
+                            new sap.uxap.ObjectPageSection({
+                                title: "Payment Terms",
+                                titleUppercase: false,
+                                subSections: [
+                                    new sap.uxap.ObjectPageSubSection({
+                                        blocks: [
+                                            new sap.ui.layout.form.SimpleForm({
+                                                editable: true,
+                                                layout: "ResponsiveGridLayout",
+                                                labelSpanL: 4,
+                                                labelSpanM: 4,
+                                                labelSpanS: 12,
+                                                content: [
+                                                    new sap.m.Label({ text: "Payment Terms:", design: "Bold" }),
+                                                    new sap.m.Input({ value: "${sPaymentTerms}" })
                                                 ]
                                             })
                                         ]
@@ -873,7 +968,13 @@ sap.ui.define([
                 isDifferentAddress: false,
                 differentAddress: "",
                 purchasingOrg: "",
-                paymentTerms: ""
+                paymentTerms: "",
+                vendorCodeCreationType: "",
+                buyerRequesting: "",
+                isRelatedParty: false,
+                businessJustification: "",
+                additionalComments: "",
+                attachments: []
             });
 
             var sHtmlContent = `
@@ -1199,7 +1300,13 @@ sap.ui.define([
             existingSupplierCode: "",
             isDifferentAddress: false,
             purchasingOrg: "",
-            paymentTerms: ""
+            paymentTerms: "",
+            vendorCodeCreationType: "",
+            buyerRequesting: "",
+            isRelatedParty: false,
+            businessJustification: "",
+            additionalComments: "",
+            attachments: []
         };
 
         function updateStepIndicator() {
@@ -1500,7 +1607,6 @@ sap.ui.define([
         }
     });
 });
-
 
 
 
