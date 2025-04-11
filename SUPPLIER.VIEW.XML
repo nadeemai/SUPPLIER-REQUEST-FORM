@@ -2,7 +2,7 @@
     controllerName="com.tableentry.tablestructure.controller.Table_Entry"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
-    xmlns:l="sap.ui.layout"
+    xmlns:l="sap.ui.layout" 
     xmlns:f="sap.f"
     xmlns:core="sap.ui.core"
     xmlns:layout="sap.ui.layout"
